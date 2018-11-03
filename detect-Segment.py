@@ -1,23 +1,33 @@
+'''
+Detection and Segmentataion of Documents in Images.
+
+Steps to Detect Document in the Image
+    1. Load the Image and resize it.
+    2. Convert the Image to GrayScale.
+    3. Image Process
+        3.1. Bilaternal Filter to reduce Noise and smooth out image.
+        3.2. Adaptive Threshold to Convert the Image to an Binary Image
+        3.3. Median Blur to filter out small pixel details
+        3.4. Black Border around Image to handle Documents that maybe touching the Border of Image
+    4. Detect Edges using Canny Edge Detector.
+    5. Find Contours in the Edge Detected Image.
+    6. Pick Points which Cover the Document.
+    7. Transform the Image
+'''
+
 # Libraries
 import cv2
 import imutils
 import numpy as np
+import argparse
+ 
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-img", "--image", required = True, help = "Path to the Image")
+args = vars(ap.parse_args())
 
 # Path to the Image
-image_path = "../DataSet/DIQ_Part1/set12/2012-04-19_18-27-07_716.jpg"
-
-# Steps to Detect Document in the Image
-#    1. Load the Image and resize it.
-#    2. Convert the Image to GrayScale.
-#    3. Image Process
-#       3.1. Bilaternal Filter to reduce Noise and smooth out image.
-#       3.2. Adaptive Threshold to Convert the Image to an Binary Image
-#       3.3. Median Blur to filter out small pixel details
-#       3.4. Black Border around Image to handle Documents that maybe touching the Border of Image
-#    4. Detect Edges using Canny Edge Detector.
-#    5. Find Contours in the Edge Detected Image.
-#    6. Pick Points which Cover the Document.
-#    7. Transform the Image
+image_path = args['image']
 
 # 1. Read the Image using opencv imread() function
 image = cv2.imread(image_path)
@@ -59,7 +69,6 @@ contour = sorted(contour, key = cv2.contourArea, reverse = True)[:10]
 
 # for each contour
 for cnts in contour:
-
     # Find the Perimeter
     i = cv2.arcLength(cnts, True)
     # Approximate the Curve
@@ -104,7 +113,6 @@ rescaled = rescaled.astype(np.float32)
 
 # Get the Perspective
 M = cv2.getPerspectiveTransform(rescaled, target)
-
 # Wrap the Image to get a new Image
 output = cv2.warpPerspective(original_image, M, (int(width), int(height)))
 
