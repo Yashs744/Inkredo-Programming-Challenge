@@ -28,12 +28,21 @@ original_image = image.copy()
 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Bilateral Filter to Smoothout the Image
-image = cv2.bilateralFilter(image, 9, 20, 20)
+image = cv2.bilateralFilter(image, 11, 50, 50)
 
 # Detecting Edges using Canny Edge Detector
-edges = cv2.Canny(image, 100, 200)
+edges = cv2.Canny(image, 75, 200)
 
-# Display Original Image and Edge Detected
-cv2.imshow("Original Image", original_image)
-cv2.imshow("Edges", edges)
-cv2.waitKey(0)
+# Find Contours in the Edge Image
+_, contour, __ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+contour = sorted(contour, key = cv2.contourArea, reverse = False)[:5]
+
+for cnts in contour:
+    i = cv2.arcLength(cnts, True)
+    approx_value = cv2.approxPolyDP(cnts, 0.02 * i, True)
+
+    if len(approx_value) == 2 or len(approx_value) == 4:
+        cv2.drawContours(image, [approx_value], -1, (0, 255, 0), 2)
+
+        cv2.imshow("Contour Image", image)
+        cv2.waitKey(0)
