@@ -39,6 +39,12 @@ image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.TH
 # Median filter would help in filtering or cleaning small details from the image
 image = cv2.medianBlur(image, 11)
 
+# There are some images where the document is touching the image border
+# To handle such images
+# Add a black border around the image
+image = cv2.copyMakeBorder(image, 4, 4, 4, 4, cv2.BORDER_CONSTANT, value = [0, 0, 0])
+# Adds a Black Border of 4 pixels in all direction
+
 # Detecting Edges using Canny Edge Detector
 edges = cv2.Canny(image, 200, 250)
 
@@ -54,7 +60,8 @@ for cnts in contour:
     # Approximate the Curve
     approx_value = cv2.approxPolyDP(cnts, 0.03 * i, True)
 
-    if len(approx_value) == 4 or len(approx_value) == 2:
+    # Assuming Document has 4 Corners
+    if len(approx_value) == 4:
 
         # Draw the Contour and Display the Image
         cv2.drawContours(image, [approx_value], -1, (0, 255, 0), 2)
